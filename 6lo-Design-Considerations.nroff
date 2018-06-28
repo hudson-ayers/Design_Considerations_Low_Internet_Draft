@@ -17,8 +17,13 @@
 
 .nf
 .tl 'INTERNET-DRAFT''Hudson Ayers'
-.tl 'Intended Status: Informational''Stanford University'
-.tl 'Expires: December 29, 2018''June 27, 2018'
+.tl 'Intended Status: Informational''Paul Crews'
+.tl 'Expires: December 29, 2018''Hubert Teo'
+.tl '''Conor McAvity'
+.tl '''Amit Levy'
+.tl '''Philip Levis'
+.tl '''Stanford University'
+.tl '''June 28, 2018'
 .fi
 
 .\" Note. The ".tl" directive is used to generate the leading header 
@@ -41,9 +46,9 @@ Hudson-Ayers-00
 .ti 0
 Abstract
 
-This document discusses guidelines for structuring Internet protocols for low power devices to encourage interoperability between diverse implementations. 
-These guidelines are based around the importance of balancing memory usage and radio efficiency, and the importance of not relying on Postel's law when dealing with low resource devices. 
-We evaluate and demonstrate these guidelines by using them to suggest changes to the IPv6 over low-power wireless personal area networks (6LoWPAN) Internet Standard that would make it easier for implementations to interoperate.
+This document discusses guidelines for specifying low-power Internet protocols to encourage implementation interoperability.
+These guidelines are based around the importance of balancing memory usage and energy efficiency, and the importance of not relying on Postel's law when dealing with low resource devices. 
+This document applies these guidelines to the IPv6 over low-power wireless personal area networks (6LoWPAN) Internet Standard, suggesting changes that would make it easier for implementations to interoperate.
 
 
 .ti 0
@@ -90,8 +95,8 @@ Table of Contents
    5 Contributing Factors . . . . . . . . . . . . . . . . . . . . . . 10
    6 Design Guidelines  . . . . . . . . . . . . . . . . . . . . . . . 11
      6.1 Guideline 1: Capability Spectrum . . . . . . . . . . . . . . 11
-       6.1.1 Guideline 1 Application to 6LoWPAN . . . . . . . . . . . 12
-     6.2 Guideline 2: Capability Negotiation  . . . . . . . . . . . . 13
+       6.1.1 Guideline 1 Application to 6LoWPAN . . . . . . . . . . . 11
+     6.2 Guideline 2: Capability Discovery  . . . . . . . . . . . . . 13
        6.2.1 Guideline 2 Application to 6LoWPAN . . . . . . . . . . . 13
      6.3 Guideline 3: Provide Reasonable Bounds . . . . . . . . . . . 14
        6.3.1 Guideline 3 Application to 6LoWPAN . . . . . . . . . . . 14
@@ -112,7 +117,7 @@ Table of Contents
 .ti 0
 1  Introduction
 
-Interoperability is critical for the Internet of Things. Not only do
+Interoperability is critical for the Internet. Not only do
 edge-devices need to interoperate with the broader Internet, they should also
 interoperate with other devices in the same network. Historically, though,
 embedded systems and sensor networks have been vertical silos of proprietary
@@ -120,8 +125,10 @@ technologies, each using custom network protocols and homogeneous
 implementations. Networks typically require specialized gateways and cannot
 easily include devices from different vendors for a variety of applications.
 
-The name itself -- Internet of Things -- explicitly states
-that these devices use the Internet protocol as a basis for networking. Using IP allows
+Interoperability is just as important in the Internet of Things, but end hosts in 
+the Internet of Things are less resourceful, more diverse in capability, and less
+well audited than 
+typical Internet end hosts. Using IP allows
 devices from different manufacturers, running completely different software stacks, to
 interoperate, share services, and compose into larger, more complex applications. 
 This interoperability should exist not only
@@ -144,18 +151,18 @@ OpenThread, mbedOS, and TinyOS.
 Unfortunately, none of these implementations are complete. Each
 implementation supports different subsets of 6LoWPAN. As a result, devices
 built using different embedded operating systems cannot interoperate. In
-fact, we found that for every possible pairing, one implementation is likely to
+fact, for every possible pairing, one implementation is likely to
 transmit 6LoWPAN packets which the other cannot process.
 
 This paper explores the reasons behind the lack of interoperability in practice,
 and argues that this results from the protocol too
 heavily prioritizing radio efficiency over processor resources, and failing to consider the
 broad range of devices which embedded operating systems will attempt to support.
-We proposes four guidelines for
+This document proposes four guidelines for
 designing interoperable protocols for low-power wireless networks, and explain them
 through an example application to two
 6LoWPAN standards - RFC 4944 and RFC 6282. These guidelines are informed by an
-empirical analysis of existing 6LoWPAN implementations as well as personal experience
+empirical analysis of existing 6LoWPAN implementations as well as
 experience implementing a full 6LoWPAN stack for the
 Tock operating system.
 
@@ -192,25 +199,26 @@ compression and fragmentation options the sender chooses to use. For two nodes
 to interoperate, the 6LoWPAN implementation on each node must be able to
 receive any packet the other node might send.
 
-We investigate the interoperability of 6LoWPAN implementations from five common
+This document investigates the interoperability of 6LoWPAN implementations from five common
 embedded software platforms: Riot OS, Contiki, OpenThread, TinyOS, and ARM Mbed.
-Our study is concerned, specifically, with each implementation's ability to
-receive and decode 6LoWPAN packets sent from other implementations. We do not
+This study is concerned, specifically, with each implementation's ability to
+receive and decode 6LoWPAN packets sent from other implementations. This document does not
 explore whether devices built using these implementations could form a network
 in the first place, since 6LoWPAN leaves much of the network formation process
 (e.g. discovery and joining) unspecified.
 
-We evaluated the compatibility between five common embedded software frameworks
-with 6LoWPAN implementations in three ways. First, we determined how completely
-each implementation implements the 6LoWPAN specification by directly examining
-their source code. Second, we show that, under some circumstances, each
+The compatibility analysis in this document, between five common embedded software frameworks
+with 6LoWPAN implementations, is based in three discoveries.
+First, a determination of how completely
+each implementation implements the 6LoWPAN specification was obtained by directly examining
+their source code. Second, this code analysis was extended to verify that under some circumstances, each
 implementation sends packets using compression or fragmentation options which
-another implementation cannot decode. Finally, we found that even in cases
+another implementation cannot decode. Finally, it was discovered that even in cases
 where two implementations use compatible compression and fragmentation options,
 different implementation choices, such as header decompression bounds, limit
 their interoperability.
 
-As a result, we find that no pairing of these five implementations is fully
+As a result, no pairing of these five implementations is fully
 interoperable.
 
 .ti 0
@@ -218,13 +226,13 @@ interoperable.
 
 The 6LoWPAN protocol consists of a large number 
 of complex and mostly independent features which use the link-layer frame
-efficiently  via compression and fragmentation optimizations. We examined the
-code and documentation for each of the aforementioned 6LoWPAN stacks, and
-quickly discovered that the stacks do not implement the specification in a
+efficiently  via compression and fragmentation optimizations. Examining the
+code and documentation for each of the aforementioned 6LoWPAN stacks
+reveals that the stacks do not implement the specification in a
 uniform manner. In fact, each specification implements a different subset of
 the requirements in the 6LoWPAN specification, and none implements the entire
 specification to the letter.  A visualization of the mismatched feature support
-we discovered across different 6LoWPAN implementations can be found in Table 1.
+across different 6LoWPAN implementations can be found in Table 1.
 Note that OT is an abbreviation used throughout this document to refer to OpenThread.
 
 .nf
@@ -260,7 +268,7 @@ Table 1: 6LoWPAN Interoperability Matrix
 2.2  Unrealistic Bounds
 
 Beyond the variation in what portions of the 6LoWPAN specification each
-stack implements, we also discovered significant variation in how each stack
+stack implements, there also exists significant variation in how each stack
 handles certain implementation-specific details. Some of these details have
 little impact on interoperability, such as decisions regarding how many
 fragments a stack holds for a given packet before dropping all of them, whether
@@ -285,8 +293,8 @@ limits low enough that packets could easily be constructed within the 6LoWPAN
 specification that would exceed these limits. For example, Contiki's limit of 38
 bytes of header decompression is exceeded by any packet for which the IP 
 header is maximally compressed (38 bytes) and the UDP header is compressed at all.
-Accordingly, we observed that certain stacks would send packets with a 
-significant amount of header compression, but that other stacks would silently
+Accordingly, certain stacks would send packets with a 
+significant amount of header compression, but other stacks would silently
 drop these packets due to lacking buffer space for fragments requiring that much
 decompression. Furthermore, these stacks do not given any indication back
 to the sender that a packet has been dropped for this reason, making
@@ -330,12 +338,8 @@ such messages.
 .ti 0 
 2.3  No Pairing Interoperates
 
-Up to this point, all we have proven is that each of the 6LoWPAN stacks we have
-analyzed is incapable of receiving certain packets which should be valid 6LoWPAN 
-packets according to the specification. In order to make our arguments regarding 
-the lack of interoperability between stacks
-convincing, we now demonstrate that existing 6LoWPAN stacks can
-actually generate the packet formats that we show other stacks cannot receive. 
+These interoperability concerns are more than theoretical: existing 6LoWPAN
+stacks generate valid packets that other stacks discard.
 This proves that missing receive functionality is not simply a case of limited
 6LoWPAN stacks abstaining from handling packets which no existing stacks ever generate anyway. 
 
@@ -370,20 +374,19 @@ context option as specified in RFC 6775.
 
 This is a non-exhaustive listing, and for most of these pairings several
 message formats exist which could be generated by one that would be
-dropped by the other. We verified via code analysis that packets could
-be easily generated for each instance in which we make that claim.
+dropped by the other. Each instance for which a claim is made that packets could
+be easily generated has been verified via code analysis.
 
-In addition to this code analysis, we wanted to present further evidence that 
+In addition to this code analysis, tests were performed to present further evidence that 
 several of these
 packets formats could easily be generated via typical use of these 6LoWPAN stacks.
 
-To do this, we 
-slightly modified basic example networking apps on each stack, such that we could 
-use the existing 6LoWPAN interface to send certain packets. We then 
-flashed these modified examples onto embedded hardware platforms supported by each. We  
-captured
-the transmitted packets using a wireless packet sniffer, and analyzed the 
-sniffed packets using Wireshark. Through this exercise we verified that these
+These tests involved
+slightly modifying basic example networking apps on each stack, such that 
+the existing 6LoWPAN interface could be used to send certain packets. These
+modified examples were flashed onto embedded hardware platforms supported by each. 
+The transmitted packets were captured using a wireless packet sniffer, and the 
+sniffed packets analyzed using Wireshark. This exercise verified that these
 non-interoperable packets could in fact be sent. Further description of this
 hardware generation of select packets can be found in [DESIGN].
 
@@ -404,7 +407,8 @@ valid received 6LoWPAN packet that might be sent by others.
 
 In practice, many 6LoWPAN implementations do
 not implement the entire specification and, therefore, are not interoperable.
-We argue that this is not a result of poor software design, but rather
+One of the key arguments in this document is that this is not a result of poor 
+software design, but rather
 intentional choices to implement different subsets of the specification
 that favor limited RAM and code size, security concerns, and minimizing
 engineering effort.
@@ -435,7 +439,7 @@ elements of the IPv6 stack such as security features, routing specific features,
 link-layer features, and more. Further, Mbed defines macros which can be
 used to save RAM at the expense of flash, or vice-versa. TinyOS by default
 removes all code in a stack that is not being used by an application, and 
-we observed this at work by compiling different 6LoWPAN application binaries.
+this can easily be observed by compiling different 6LoWPAN application binaries.
 
 Table 2 shows the code size overhead of each of the five
 implementations broken into independent overheads for compression,
@@ -464,14 +468,14 @@ The methodology use to collect these values can be found in [DESIGN].
 These results likely overestimate the overhead of fragmentation and
 underestimate the overhead of certain kinds of compression since some of the
 complexity of compression is born on the fragmentation logic. Moreover, for
-OpenThread and Arm Mbed, where we had to examine binaries manually, we expect
-the results underestimate the overhead of all 6LoWPAN components since we
+OpenThread and Arm Mbed, which required manual examination of binaries, 
+the results almost certainly underestimate the overhead of all 6LoWPAN components since we
 only counted procedures which unambiguously implemented particular
 functionality, though some of the complexity is implemented in other portions of
 the stack. In summary:
 
 .in 6
--  6LoWPAN stack devolopers were concerned with processor resource requirements of the protocol.
+-  6LoWPAN stack developers were concerned with processor resource requirements of the protocol.
 
 - Fragmentation, the only portion of 6LoWPAN that's strictly necessary for sending IPv6 packets, consumes
 significantly less ROM than compression.
@@ -524,7 +528,7 @@ resource devices without forcing more resourceful devices to
 communicate inefficiently.
 
 This capability spectrum should be a linear scale. For a device to
-support capability level $N$, it must also support all lower
+support capability level N, it must also support all lower
 capability levels. More complex configuration approaches (e.g., a set
 of independent options) would allow for a particular application or
 implementation to be more efficient, picking the features that give
@@ -535,8 +539,8 @@ devices must negotiate which features to use.
 .ti 0
 6.1.1 Guideline 1 Application to 6LoWPAN
 
-We propose replacing the large collection of "MUST''
-requirements - those "features'' in Table xx - into 6 levels
+Application of this guideline would require replacing the large collection of "MUST''
+requirements - those "features'' in Table 1 - into 6 levels
 of functionality. These levels prioritize features that provide the
 best packet size savings given the resulting implementation
 complexity.  For example, the greatest savings results from compressing
@@ -552,7 +556,7 @@ complexity.  For example, the greatest savings results from compressing
 
 1. IPv6 Compression Basics + Stateless Address Compression
 
-        	1a. Support for the Dispatch\_IPHC Header Prefix
+        	1a. Support for the Dispatch_IPHC Header Prefix
 
         	1b. Correctly handle elision of IPv6 length and version
 
@@ -605,17 +609,17 @@ not support 802.15.4 short addresses (level 2) or tunneled IPv6 (level
 If Contiki supported 16-bit addresses, it would provide level 4
 support.
 
-The specific spectrum that we present
-is based off of our measurements of code size, the saved bits that each 
-additional level of compression allows for, and our observations of existing
+The specific spectrum presented here
+is based off of measurements of code size, the saved bits that each 
+additional level of compression allows for, and observations of existing
 6LoWPAN implementations.
 
 .ti 0
-6.2 Guideline 2: Capability Negotiation
+6.2 Guideline 2: Capability Discovery
 
 The second guideline immediately follows from the first: if two
 implementations may have different capability levels, there should be
-an explicit mechanism by which two devices can efficiently negotiate
+an explicit mechanism by which two devices can efficiently discover
 what level to use when they communicate
 
 If two devices wish to communicate, they default to the lower of
@@ -630,7 +634,7 @@ endpoints) and so does not require knowledge of the whole network.
 .ti 0
 6.2.1 Guideline 2 Application to 6LoWPAN
 
-6lowpan could implement capability negotiation using two mechanisms:
+6lowpan could implement capability discovery using two mechanisms:
 neighbor discovery (ND) and ICMP. Neighbor discovery allows devices to
 probe and determine capability levels, while ICMP allows devices to
 determine when incompatible features are used, or when ND is not
@@ -648,8 +652,8 @@ devices implement General Header Compression: adding such an option is
 clearly viable.
 
 ICMP: All IPv6 devices are already
-required to support ICMP. We propose adding a new ICMPv6 message
-type - 6LoWPAN Class Unsupported - which could be sent in response to
+required to support ICMP. A new ICMPv6 message
+type - 6LoWPAN Class Unsupported - should be added, which could be sent in response to
 messages received encoded using a 6LoWPAN class higher than the class
 of the receiving host.  This would allow for communication of
 capabilities even in networks not constructed using IPv6 ND. This
@@ -666,7 +670,7 @@ First, it allows implementations to safely limit their RAM use without
 silent interoperability failures. E.g., today, if an mbed device sends
 a 6lowpan packet whose compression is greater than 38 bytes to a
 Contiki device, Contiki will silently drop the packet. Second, it
-ensures that capability negotiation is sufficient to interoperate.
+ensures that capability discovery is sufficient to interoperate.
 
 The original designers of a specification may not know exactly what
 these values should be. This is not a new problem: TCP congestion
@@ -679,7 +683,7 @@ interoperate with earlier ones.
 .ti 0
 6.3.1 Guideline 3 Application to 6LoWPAN
 
-Section xx discussed two unreasonable bounds which affect
+Section 2 discussed two unreasonable bounds which affect
 6LoWPAN interoperability. The first is the 1280 byte bound on maximum
 header decompression (the amount a header will grow when
 decompressed).  A bound allows implementations to conserve RAM. As a
@@ -689,7 +693,7 @@ other stacks. The lack of a bound on arbitrary next header compression
 was demonstrated as adding significant complexity to implementations
 to service packets which should rarely be used.
 
-We propose that maximum header decompression in 6LoWPAN packets should
+To address this, maximum header decompression in 6LoWPAN packets should
 be bounded to 50 bytes. This bound allows for significant RAM savings
 in implementations that decompress first fragments into the same
 buffer in which the fragment was originally held prior to any copying
@@ -775,7 +779,7 @@ check the application-level MIC.
 The payoff of UDP checksum compression is not even significant - 2
 bytes of checksum is a small portion of a 127 byte frame. The
 problematic nature of UDP checksum compression is further demonstrated
-by the fact that only one of the five stacks we tested implements the
+by the fact that only one of the five stacks analyzed in this document implements the
 feature.
 
 .bp
@@ -869,6 +873,31 @@ Hudson Ayers
 Stanford University
 
 EMail: hayers@stanford.edu
+
+Paul Crews
+Stanford University
+
+EMail: ptcrews@stanford.edu
+
+Hubert Hua Kian Teo
+Stanford University
+
+EMail: hteo@stanford.edu
+
+Conor McAvity
+Stanford University
+
+EMail: cmcavity@stanford.edu
+
+Amit Levy
+Stanford University
+
+EMail: levya@cs.stanford.edu
+
+Philip Levis
+Stanford University
+
+EMail: pal@stanford.edu
 .sp
 .fi
 
