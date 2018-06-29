@@ -4,12 +4,12 @@
 
 INTERNET-DRAFT                                              Hudson Ayers
 Intended Status: Informational                                Paul Crews
-Expires: December 29, 2018                                    Hubert Teo
+Expires: December 31, 2018                                    Hubert Teo
                                                            Conor McAvity
                                                                Amit Levy
                                                             Philip Levis
                                                      Stanford University
-                                                           June 28, 2018
+                                                           June 29, 2018
 
 
         Design Considerations For Low Power Internet Protocols 
@@ -19,13 +19,13 @@ Expires: December 29, 2018                                    Hubert Teo
 Abstract
 
    This document discusses guidelines for specifying low-power Internet
-   protocols to encourage implementation interoperability. These
+   protocols in order to improve implementation interoperability. These
    guidelines are based around the importance of balancing memory usage
    and energy efficiency, and the importance of not relying on Postel's
    law when dealing with low resource devices. This document applies
    these guidelines to the IPv6 over low-power wireless personal area
    networks (6LoWPAN) Internet Standard, suggesting changes that would
-   make it easier for implementations to interoperate.
+   make it more likely for implementations to interoperate.
 
 
 Status of this Memo
@@ -53,9 +53,9 @@ Status of this Memo
  
 
 
-Hudson Ayers           Expires December 29, 2018                [Page 1]
+Hudson Ayers           Expires December 31, 2018                [Page 1]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
 
 Copyright and License Notice
@@ -85,33 +85,33 @@ Table of Contents
        2.2.1 Maximum Header Decompression . . . . . . . . . . . . . .  6
        2.2.2 Arbitrary Next Header Compression  . . . . . . . . . . .  6
      2.3  No Pairing Interoperates  . . . . . . . . . . . . . . . . .  7
-   3  Implementation Concerns . . . . . . . . . . . . . . . . . . . .  8
+   3  Implementation Concerns . . . . . . . . . . . . . . . . . . . .  9
      3.1  Processor Resources . . . . . . . . . . . . . . . . . . . .  9
-   5 Contributing Factors . . . . . . . . . . . . . . . . . . . . . . 10
+   5 Contributing Factors . . . . . . . . . . . . . . . . . . . . . . 11
    6 Design Guidelines  . . . . . . . . . . . . . . . . . . . . . . . 11
      6.1 Guideline 1: Capability Spectrum . . . . . . . . . . . . . . 11
-       6.1.1 Guideline 1 Application to 6LoWPAN . . . . . . . . . . . 11
+       6.1.1 Guideline 1 Application to 6LoWPAN . . . . . . . . . . . 12
      6.2 Guideline 2: Capability Discovery  . . . . . . . . . . . . . 13
        6.2.1 Guideline 2 Application to 6LoWPAN . . . . . . . . . . . 13
      6.3 Guideline 3: Provide Reasonable Bounds . . . . . . . . . . . 14
        6.3.1 Guideline 3 Application to 6LoWPAN . . . . . . . . . . . 14
      6.4 Guideline 4: Don't Break Layering  . . . . . . . . . . . . . 15
        6.4.1 Guideline 4 Application to 6LoWPAN . . . . . . . . . . . 16
-   7  Security Considerations . . . . . . . . . . . . . . . . . . . . 17
-   8  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 17
-   9  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 17
-     9.1  Normative References  . . . . . . . . . . . . . . . . . . . 17
-     9.2  Informative References  . . . . . . . . . . . . . . . . . . 17
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 18
+   7  Security Considerations . . . . . . . . . . . . . . . . . . . . 18
+   8  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 18
+   9  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+     9.1  Normative References  . . . . . . . . . . . . . . . . . . . 18
+     9.2  Informative References  . . . . . . . . . . . . . . . . . . 19
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 20
 
 
 
  
 
 
-Hudson Ayers           Expires December 29, 2018                [Page 2]
+Hudson Ayers           Expires December 31, 2018                [Page 2]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
 
 1  Introduction
@@ -145,7 +145,8 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    4944][RFC 6282][RFC 6775]. The 6LoWPAN RFCs define a fragmentation
    format, a compression format, and more. These 6LoWPAN standards have
    been adopted by a number of popular embedded operating systems,
-   including Contiki, RiotOS, OpenThread, mbedOS, and TinyOS.
+   including Contiki {CONTIKI], RiotOS {RIOT], OpenThread [OPENTHREAD],
+   mbedOS [ARM], and TinyOS [TINYOS].
 
    Unfortunately, none of these implementations are complete. Each
    implementation supports different subsets of 6LoWPAN. As a result,
@@ -161,17 +162,17 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    four guidelines for designing interoperable protocols for low-power
    wireless networks, and explain them through an example application to
    two 6LoWPAN standards - RFC 4944 and RFC 6282. These guidelines are
-   informed by an empirical analysis of existing 6LoWPAN implementations
  
 
 
-Hudson Ayers           Expires December 29, 2018                [Page 3]
+Hudson Ayers           Expires December 31, 2018                [Page 3]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
 
+   informed by an empirical analysis of existing 6LoWPAN implementations
    as well as experience implementing a full 6LoWPAN stack for the Tock
-   operating system.
+   operating system [TOCK].
 
 1.1  Terminology
 
@@ -190,11 +191,12 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 2.  6LoWPAN Interoperability Study
 
    The IETF's 6LoWPAN working group has been concerned with
-   interoperability between implementation since inception. Indeed,
-   members of the working group have organized ``Plugtests'', where
-   vendors verified correct implementation of the 6LowPAN specifications
-   and tested interoperability with other vendors. Unfortunately,
-   detailed results of these plugtests are not publicly available.
+   interoperability between implementation since inception [6LO-CHART].
+   Indeed, members of the working group have organized ``Plugtests'',
+   where vendors verified correct implementation of the 6LowPAN
+   specifications and tested interoperability with other vendors.
+   Unfortunately, detailed results of these plugtests are not publicly
+   available.
 
    A node sending IPv6 packets using 6LoWPAN may fragment the packet or
    compress headers in a large number of ways permitted by the
@@ -216,16 +218,16 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    and joining) unspecified.
 
    The compatibility analysis in this document, between five common
-   embedded software frameworks with 6LoWPAN implementations, is based
-   in three discoveries. First, a determination of how completely each
  
 
 
-Hudson Ayers           Expires December 29, 2018                [Page 4]
+Hudson Ayers           Expires December 31, 2018                [Page 4]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
 
+   embedded software frameworks with 6LoWPAN implementations, is based
+   in three discoveries. First, a determination of how completely each
    implementation implements the 6LoWPAN specification was obtained by
    directly examining their source code. Second, this code analysis was
    extended to verify that under some circumstances, each implementation
@@ -244,10 +246,10 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    independent features which use the link-layer frame efficiently  via
    compression and fragmentation optimizations. Examining the code and
    documentation for each of the aforementioned 6LoWPAN stacks reveals
-   that the stacks do not implement the specification in a uniform
-   manner. In fact, each specification implements a different subset of
-   the requirements in the 6LoWPAN specification, and none implements
-   the entire specification to the letter.  A visualization of the
+   that the stacks do not uniformly implement the specification. In
+   fact, each specification implements a different subset of the
+   requirements in the 6LoWPAN specification, and none implements the
+   entire specification to the letter.  A visualization of the
    mismatched feature support across different 6LoWPAN implementations
    can be found in Table 1. Note that OT is an abbreviation used
    throughout this document to refer to OpenThread.
@@ -272,15 +274,16 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    | IPv6 NH Compression: UDP               |   o   |o | o  | o |  o   |
    | UDP port compression                   |   o   |o | o  | o |  o   |
    | UDP checksum elision                   |       |  |    |   |  o   |
-   | Compression + headers past first frag  |       |  |    |   |      |
-   +----------------------------------------+-------+--+----+---+------
  
 
 
-Hudson Ayers           Expires December 29, 2018                [Page 5]
+Hudson Ayers           Expires December 31, 2018                [Page 5]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
+
+   | Compression + headers past first frag  |       |  |    |   |      |
+   +----------------------------------------+-------+--+----+---+------
 
                    Table 1: 6LoWPAN Interoperability Matrix
 
@@ -327,16 +330,17 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 2.2.2 Arbitrary Next Header Compression
 
    Several of the 6LoWPAN stacks also impose limits on the arbitrary
-   compression/decompression of IPv6 extension headers and next headers
-   required by the specification. The headers which must be handled are
-   as follows:
  
 
 
-Hudson Ayers           Expires December 29, 2018                [Page 6]
+Hudson Ayers           Expires December 31, 2018                [Page 6]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
+
+   compression/decompression of IPv6 extension headers and next headers
+   required by the specification. The headers which must be handled are
+   as follows:
 
    - IPv6 Hop-By-Hop Options Header
 
@@ -372,7 +376,7 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    6LoWPAN stacks generate valid packets that other stacks discard. This
    proves that missing receive functionality is not simply a case of
    limited 6LoWPAN stacks abstaining from handling packets which no
-   existing stacks ever generate anyway. 
+   existing stacks ever generate. 
 
    What follows is a listing of each of the 10 possible combinations of
    6LoWPAN stacks, accompanied by a single example packet which can be
@@ -382,17 +386,18 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    Contiki, OpenThread : Contiki generated message using uncompressed
    IPv6
 
+ 
+
+
+Hudson Ayers           Expires December 31, 2018                [Page 7]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
    Contiki, Riot: Riot generated message using stateful multicast
    address compression
 
    Contiki, Mbed: Mbed generated message using compresesd, tunneled IPv6
- 
-
-
-Hudson Ayers           Expires December 29, 2018                [Page 7]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
 
    Contiki, TinyOS: TinyOS generated message containing compressed IPv6
    extension headers
@@ -437,19 +442,19 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    description of this hardware generation of select packets can be
    found in [DESIGN].
 
+ 
+
+
+Hudson Ayers           Expires December 31, 2018                [Page 8]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
 3  Implementation Concerns
 
    The 6LoWPAN specification was created with a clear goal---to allow
    for IPv6 connectivity over a link-layer with an order of magnitude
    smaller frame sizes than Ethernet. Unfortunately, fragmented IPv6 on
- 
-
-
-Hudson Ayers           Expires December 29, 2018                [Page 8]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
-
    its own requires header overhead much greater than typical wireless
    protocols designed for low power devices. As a result, the
    specification places an extreme focus on minimizing protocol overhead
@@ -462,11 +467,11 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    packet that might be sent by others.
 
    In practice, many 6LoWPAN implementations do not implement the entire
-   specification and, therefore, are not interoperable. One of the key
-   arguments in this document is that this is not a result of poor
-   software design, but rather intentional choices to implement
-   different subsets of the specification that favor limited RAM and
-   code size, security concerns, and minimizing engineering effort.
+   specification and, therefore, are not interoperable. This is not a
+   result of poor software design, but rather intentional choices to
+   implement different subsets of the specification that favor limited
+   RAM and code size, security concerns, and minimizing engineering
+   effort.
 
    In fact, in some cases even these incomplete 6LoWPAN implementations
    systems are too resource intensive for some devices. As a result,
@@ -493,19 +498,19 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    IPv6 stack such as security features, routing specific features,
    link-layer features, and more. Further, Mbed defines macros which can
    be used to save RAM at the expense of flash, or vice-versa. TinyOS by
+ 
+
+
+Hudson Ayers           Expires December 31, 2018                [Page 9]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
    default removes all code in a stack that is not being used by an
    application, and this can easily be observed by compiling different
    6LoWPAN application binaries.
 
    Table 2 shows the code size overhead of each of the five
- 
-
-
-Hudson Ayers           Expires December 29, 2018                [Page 9]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
-
    implementations broken into independent overheads for compression,
    fragmentation, mesh and broadcast headers, as well as totals for
    6LoWPAN and the entire networking stack including physical layer
@@ -549,18 +554,18 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 
       - Mesh and broadcast headers are relatively expensive given that
       few real-world applications use them
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 10]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
 
 5 Contributing Factors
 
    Several fundamental factors contributed to 6LoWPAN's interoperability
    problems.
- 
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 10]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
 
    When writing low power networking specifications, an important
    "slider'' exists - the tradeoff between code size and protocol
@@ -605,18 +610,19 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    levels. More complex configuration approaches (e.g., a set of
    independent options) would allow for a particular application or
    implementation to be more efficient, picking the features that give
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 11]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
    the most benefit at the least complexity cost. However, this sort of
    optimization then makes interoperability more difficult, as two
    devices must negotiate which features to use.
 
 6.1.1 Guideline 1 Application to 6LoWPAN
- 
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 11]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
 
    Application of this guideline would require replacing the large
    collection of "MUST'' requirements - those "features'' in Table 1 -
@@ -660,19 +666,19 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    Limit Compression
 
    4. IPv6 and UDP NH Compression + UDP Port Compression
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 12]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
 
    	4a. Handle Tunneled IPv6 correctly
 
    	4b. Handle the compression of the UDP Next Header
 
    	4c. Correctly handle elision of the UDP length field
- 
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 12]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
 
    	4d. Correctly handle the compression of UDP ports
 
@@ -716,19 +722,19 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 
 6.2.1 Guideline 2 Application to 6LoWPAN
 
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 13]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
    6lowpan could implement capability discovery using two mechanisms:
    neighbor discovery (ND) and ICMP. Neighbor discovery allows devices
    to probe and determine capability levels, while ICMP allows devices
    to determine when incompatible features are used, or when ND is not
    available.
-
- 
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 13]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
 
    Neighbor discovery: 6LoWPAN ND should add an option that allows a
    device to communicate its capability class during association with a
@@ -736,7 +742,7 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    all devices that learn neighbor addresses via ND to also know how to
    send packets which that neighbor can receive. This option minimizes
    the energy cost of communicating capabilities. It is worth noting
-   that RFC 7400 already employs a similar method for communicating
+   that [RFC7400] already employs a similar method for communicating
    whether devices implement General Header Compression: adding such an
    option is clearly viable.
 
@@ -772,20 +778,20 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 6.3.1 Guideline 3 Application to 6LoWPAN
 
    Section 2 discussed two unreasonable bounds which affect 6LoWPAN
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 14]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
    interoperability. The first is the 1280 byte bound on maximum header
    decompression (the amount a header will grow when decompressed).  A
    bound allows implementations to conserve RAM. As a result, some
    implementations impose their own lower bounds, but these bounds do
    not agree so some stacks cannot decompress some packets sent by other
    stacks. The lack of a bound on arbitrary next header compression was
- 
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 14]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
-
    demonstrated as adding significant complexity to implementations to
    service packets which should rarely be used.
 
@@ -828,20 +834,20 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    unforeseen and extremely difficult to fix interoperability problems.
 
    The appeal of cross-layer optimization in embedded systems is even
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 15]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
    stronger than in traditional computers. Designed for a specific
    application, a developer can understand and know exactly how the
    entire system works, from hardware to application code.  However,
    while this whole-system knowledge makes sense for a particular device
    or iteration of an application, long-lived systems will evolve and
    change.  This is especially true if the device will need to
- 
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 15]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
-
    interoperate with new gateways or application devices. Furthermore,
    as embedded systems have grown more complex, their software has begun
    to resemble more traditional systems. Rather than write software from
@@ -868,24 +874,74 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
    MIC is insufficient, as it only protects packets against sub-link
    corruption.  
 
-   The end-to-end principle, foundational to all modern network design,
-   says that only endpoints can verify correct communication. The only
-   place that can safely verify the UDP header is the UDP stack. It is
-   worth noting that the seminal example that led to definition of the
-   end-to-end principle was a memory corruption: packets held in memory
-   to be sent were corrupted before being sent. The recommended
-   workarounds in RFC 6282 are vulnerable to such an event. A packet
-   sent by an application that elides the UDP checksum could be
-   corrupted in memory before the link-layer MIC is computed.  Such a
-   packet would be successfully received by the destination and
+   The end-to-end principle [E2E], foundational to all modern network
+   design, says that only endpoints can verify correct communication.
+   The only place that can safely verify the UDP header is the UDP
+   stack. It is worth noting that the seminal example that led to
+   definition of the end-to-end principle was a memory corruption:
+   packets held in memory to be sent were corrupted before being sent.
+   The recommended workarounds in RFC 6282 are vulnerable to such an
+   event. A packet sent by an application that elides the UDP checksum
+   could be corrupted in memory before the link-layer MIC is computed. 
+   Such a packet would be successfully received by the destination and
    dispatched to the wrong application, which would not check the
    application-level MIC.
 
    The payoff of UDP checksum compression is not even significant - 2
    bytes of checksum is a small portion of a 127 byte frame. The
    problematic nature of UDP checksum compression is further
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 16]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
    demonstrated by the fact that only one of the five stacks analyzed in
    this document implements the feature.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -893,9 +949,9 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
  
 
 
-Hudson Ayers           Expires December 29, 2018               [Page 16]
+Hudson Ayers           Expires December 31, 2018               [Page 17]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
 
 7  Security Considerations
@@ -943,17 +999,37 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 9.1  Normative References
 
 
-9.2  Informative References
-
-   [DESIGN]  Ayers, H. et al., "Design Considerations for Low Power
+   [RFC4919] Kushalnagar, N., Montenegro, G., and C. Schumacher, "IPv6
+              over Low-Power Wireless Personal Area Networks (6LoWPANs):
+              Overview, Assumptions, Problem Statement, and Goals", RFC
  
 
 
-Hudson Ayers           Expires December 29, 2018               [Page 17]
+Hudson Ayers           Expires December 31, 2018               [Page 18]
 
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
 
 
+              4919, DOI 10.17487/RFC4919, August 2007, <https://www.rfc-
+              editor.org/info/rfc4919>.
+
+   [RFC4944]  Montenegro, G., Kushalnagar, N., Hui, J., and D. Culler,
+              "Transmission of IPv6 Packets over IEEE 802.15.4
+              Networks", RFC 4944, September 2007, <http://www.rfc-
+              editor.org/info/rfc4944>.
+
+   [RFC6282]  Hui, J. and P. Thubert, "Compression Format for IPv6
+              Datagrams over IEEE 802.15.4-Based Networks", RFC 6282,
+              September 2011, <http://www.rfc-editor.org/info/rfc6282>.
+
+   [RFC6775]  Shelby, Z., Chakrabarti, S., Nordmark, E., and C. Bormann,
+              "Neighbor Discovery Optimization for IPv6 over Low-Power
+              Wireless Personal Area Networks (6LoWPANs)", RFC 6775,
+              November 2012, <http://www.rfc-editor.org/info/rfc6775>.
+
+9.2  Informative References
+
+   [DESIGN]  Ayers, H. et al., "Design Considerations for Low Power
               Internet Protocols", Arxiv, June 2018.
 
    [TINYOS]  TinyOS Alliance, "TinyOS",  2018,
@@ -970,6 +1046,30 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 
    [OPENTHREAD]  Nest, "OpenThread",  2018,
               <https://github.com/openthread/openthread>.
+
+   [TOCK]  Levy, A., Campbell, B., Pannuto, P., Dutta, P., Levis, P.,
+              "The Case for Writing a Kernel in Rust", APSys, 2017,
+              <https://doi.org/10.1145/3124680.3124717>.
+
+   [6LO-CHART] Lemon, T., "IPv6 over Low power WPAN WG Charter", IETF,
+              2005, <https://datatracker.ietf.org/doc/charter-ietf-
+              6lowpan/>.  
+
+   [E2E]  Saltzer, J. H., Reed, D. P., Clark, D. D., "End-to-end
+              Arguments in System Design", ACM Trans. Comput. Syst.,
+              November 1984.
+ 
+
+
+Hudson Ayers           Expires December 31, 2018               [Page 19]
+
+INTERNET DRAFT         6lo Design Considerations           June 29, 2018
+
+
+   [RFC7400] Bormann, C., "6LoWPAN-GHC: Generic Header Compression for
+              IPv6 over Low-Power Wireless Personal Area Networks
+              (6LoWPANs)", RFC 7400, DOI 10.17487/RFC7400, November
+              2014, <https://www.rfc-editor.org/info/rfc7400>.
 
 
 
@@ -1002,14 +1102,6 @@ Authors' Addresses
    EMail: levya@cs.stanford.edu
 
    Philip Levis
- 
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 18]
-
-INTERNET DRAFT         6lo Design Considerations           June 27, 2018
-
-
    Stanford University
 
    EMail: pal@stanford.edu
@@ -1025,40 +1117,4 @@ INTERNET DRAFT         6lo Design Considerations           June 27, 2018
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Hudson Ayers           Expires December 29, 2018               [Page 19]
+Hudson Ayers           Expires December 31, 2018               [Page 20]

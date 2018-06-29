@@ -7,9 +7,9 @@
 .ds LF Hudson Ayers 
 .ds RF FORMFEED[Page %]
 .ds LH INTERNET DRAFT
-.ds RH June 27, 2018
+.ds RH June 29, 2018
 .ds CH 6lo Design Considerations
-.ds CF Expires December 29, 2018
+.ds CF Expires December 31, 2018
 .hy 0
 .nh
 .ad l
@@ -18,12 +18,12 @@
 .nf
 .tl 'INTERNET-DRAFT''Hudson Ayers'
 .tl 'Intended Status: Informational''Paul Crews'
-.tl 'Expires: December 29, 2018''Hubert Teo'
+.tl 'Expires: December 31, 2018''Hubert Teo'
 .tl '''Conor McAvity'
 .tl '''Amit Levy'
 .tl '''Philip Levis'
 .tl '''Stanford University'
-.tl '''June 28, 2018'
+.tl '''June 29, 2018'
 .fi
 
 .\" Note. The ".tl" directive is used to generate the leading header 
@@ -46,9 +46,9 @@ Hudson-Ayers-00
 .ti 0
 Abstract
 
-This document discusses guidelines for specifying low-power Internet protocols to encourage implementation interoperability.
+This document discusses guidelines for specifying low-power Internet protocols in order to improve implementation interoperability.
 These guidelines are based around the importance of balancing memory usage and energy efficiency, and the importance of not relying on Postel's law when dealing with low resource devices. 
-This document applies these guidelines to the IPv6 over low-power wireless personal area networks (6LoWPAN) Internet Standard, suggesting changes that would make it easier for implementations to interoperate.
+This document applies these guidelines to the IPv6 over low-power wireless personal area networks (6LoWPAN) Internet Standard, suggesting changes that would make it more likely for implementations to interoperate.
 
 
 .ti 0
@@ -90,24 +90,24 @@ Table of Contents
        2.2.1 Maximum Header Decompression . . . . . . . . . . . . . .  6
        2.2.2 Arbitrary Next Header Compression  . . . . . . . . . . .  6
      2.3  No Pairing Interoperates  . . . . . . . . . . . . . . . . .  7
-   3  Implementation Concerns . . . . . . . . . . . . . . . . . . . .  8
+   3  Implementation Concerns . . . . . . . . . . . . . . . . . . . .  9
      3.1  Processor Resources . . . . . . . . . . . . . . . . . . . .  9
-   5 Contributing Factors . . . . . . . . . . . . . . . . . . . . . . 10
+   5 Contributing Factors . . . . . . . . . . . . . . . . . . . . . . 11
    6 Design Guidelines  . . . . . . . . . . . . . . . . . . . . . . . 11
      6.1 Guideline 1: Capability Spectrum . . . . . . . . . . . . . . 11
-       6.1.1 Guideline 1 Application to 6LoWPAN . . . . . . . . . . . 11
+       6.1.1 Guideline 1 Application to 6LoWPAN . . . . . . . . . . . 12
      6.2 Guideline 2: Capability Discovery  . . . . . . . . . . . . . 13
        6.2.1 Guideline 2 Application to 6LoWPAN . . . . . . . . . . . 13
      6.3 Guideline 3: Provide Reasonable Bounds . . . . . . . . . . . 14
        6.3.1 Guideline 3 Application to 6LoWPAN . . . . . . . . . . . 14
      6.4 Guideline 4: Don't Break Layering  . . . . . . . . . . . . . 15
        6.4.1 Guideline 4 Application to 6LoWPAN . . . . . . . . . . . 16
-   7  Security Considerations . . . . . . . . . . . . . . . . . . . . 17
-   8  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 17
-   9  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 17
-     9.1  Normative References  . . . . . . . . . . . . . . . . . . . 17
-     9.2  Informative References  . . . . . . . . . . . . . . . . . . 17
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 18
+   7  Security Considerations . . . . . . . . . . . . . . . . . . . . 18
+   8  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 18
+   9  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+     9.1  Normative References  . . . . . . . . . . . . . . . . . . . 18
+     9.2  Informative References  . . . . . . . . . . . . . . . . . . 19
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 20
 .fi
 .in 3
 
@@ -145,8 +145,8 @@ layers such as IEEE 802.15.4 {RFC 4919][RFC 4944][RFC 6282][RFC 6775].
 The 6LoWPAN RFCs define a fragmentation format, 
 a compression format, and more. These 6LoWPAN
 standards have been adopted by a number of popular embedded operating systems,
-including Contiki, RiotOS,
-OpenThread, mbedOS, and TinyOS.
+including Contiki {CONTIKI], RiotOS {RIOT],
+OpenThread [OPENTHREAD], mbedOS [ARM], and TinyOS [TINYOS].
 
 Unfortunately, none of these implementations are complete. Each
 implementation supports different subsets of 6LoWPAN. As a result, devices
@@ -164,7 +164,7 @@ through an example application to two
 6LoWPAN standards - RFC 4944 and RFC 6282. These guidelines are informed by an
 empirical analysis of existing 6LoWPAN implementations as well as
 experience implementing a full 6LoWPAN stack for the
-Tock operating system.
+Tock operating system [TOCK].
 
 .ti 0
 1.1  Terminology
@@ -184,7 +184,7 @@ for additional details of 6LoWPAN work.
 2.  6LoWPAN Interoperability Study
 
 The IETF's 6LoWPAN working group has been concerned with interoperability
-between implementation since inception. Indeed,
+between implementation since inception [6LO-CHART]. Indeed,
 members of the working group have organized ``Plugtests'', where vendors
 verified correct implementation of the 6LowPAN specifications and tested
 interoperability with other vendors. 
@@ -228,8 +228,8 @@ The 6LoWPAN protocol consists of a large number
 of complex and mostly independent features which use the link-layer frame
 efficiently  via compression and fragmentation optimizations. Examining the
 code and documentation for each of the aforementioned 6LoWPAN stacks
-reveals that the stacks do not implement the specification in a
-uniform manner. In fact, each specification implements a different subset of
+reveals that the stacks do not uniformly implement the specification.
+ In fact, each specification implements a different subset of
 the requirements in the 6LoWPAN specification, and none implements the entire
 specification to the letter.  A visualization of the mismatched feature support
 across different 6LoWPAN implementations can be found in Table 1.
@@ -341,7 +341,7 @@ such messages.
 These interoperability concerns are more than theoretical: existing 6LoWPAN
 stacks generate valid packets that other stacks discard.
 This proves that missing receive functionality is not simply a case of limited
-6LoWPAN stacks abstaining from handling packets which no existing stacks ever generate anyway. 
+6LoWPAN stacks abstaining from handling packets which no existing stacks ever generate. 
 
 What follows is a listing of each of the 10 possible combinations of 6LoWPAN stacks,
 accompanied by a single example packet which can be generated by one of the stacks in 
@@ -407,7 +407,7 @@ valid received 6LoWPAN packet that might be sent by others.
 
 In practice, many 6LoWPAN implementations do
 not implement the entire specification and, therefore, are not interoperable.
-One of the key arguments in this document is that this is not a result of poor 
+This is not a result of poor 
 software design, but rather
 intentional choices to implement different subsets of the specification
 that favor limited RAM and code size, security concerns, and minimizing
@@ -647,7 +647,7 @@ network. The inclusion of a few extra bits in ND messages would allow
 all devices that learn neighbor addresses via ND to also know how to
 send packets which that neighbor can receive. This option minimizes
 the energy cost of communicating capabilities. It is worth noting that
-RFC 7400 already employs a similar method for communicating whether
+[RFC7400] already employs a similar method for communicating whether
 devices implement General Header Compression: adding such an option is
 clearly viable.
 
@@ -763,7 +763,7 @@ verify the MIC. Furthermore, protecting the header with a link-layer
 MIC is insufficient, as it only protects packets against sub-link
 corruption.  
 
-The end-to-end principle, foundational to all modern network design,
+The end-to-end principle [E2E], foundational to all modern network design,
 says that only endpoints can verify correct
 communication. The only place that can safely verify
 the UDP header is the UDP stack. It is worth noting that the seminal
@@ -828,7 +828,7 @@ capability advertisements [RFC4861].
 
 .in 14
 .\" \# REF  -- Managed reference list. Syntax: [RFC]nnnn[;Label], ... ,[RFC]nnnn[;Label]
-.\" \# 4919, 4944, 6282, 6775, 760
+.\" \# 4919, 4944, 6282, 6775
 .\" \# ERF -- End of managed reference list
 .\" ----------------------------------------
 .\" The reference list can be changed at any time by altering the RFC list in the line below the .\" \# REF directive
@@ -836,12 +836,24 @@ capability advertisements [RFC4861].
 .\" from the "Edit" menu or press <F3>.
 .\" NOTE: Managed reference list requires NroffEdit version 1.40 or later.
 
+.ti 3
+[RFC4919] Kushalnagar, N., Montenegro, G., and C. Schumacher, "IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs): Overview, Assumptions, Problem Statement, and Goals", RFC 4919, DOI 10.17487/RFC4919, August 2007, <https://www.rfc-editor.org/info/rfc4919>.
+
+.ti 3
+[RFC4944]  Montenegro, G., Kushalnagar, N., Hui, J., and D. Culler, "Transmission of IPv6 Packets over IEEE 802.15.4 Networks", RFC 4944, September 2007, <http://www.rfc-editor.org/info/rfc4944>.
+
+.ti 3
+[RFC6282]  Hui, J. and P. Thubert, "Compression Format for IPv6 Datagrams over IEEE 802.15.4-Based Networks", RFC 6282, September 2011, <http://www.rfc-editor.org/info/rfc6282>.
+
+.ti 3
+[RFC6775]  Shelby, Z., Chakrabarti, S., Nordmark, E., and C. Bormann, "Neighbor Discovery Optimization for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)", RFC 6775, November 2012, <http://www.rfc-editor.org/info/rfc6775>.
+
 .ti 0
 9.2  Informative References
 
 .in 14
 .\" \# REF  -- Managed reference list. Syntax: [RFC]nnnn[;Label], ... ,[RFC]nnnn[;Label]
-.\" \# 3514;EVILBIT, 5513, 5514
+.\" \# 7400
 .\" \# ERF -- End of managed reference list
 .ti 3
 [DESIGN]  Ayers, H. et al., "Design Considerations for Low Power Internet Protocols", Arxiv, June 2018.
@@ -860,6 +872,18 @@ capability advertisements [RFC4861].
 
 .ti 3
 [OPENTHREAD]  Nest, "OpenThread",  2018, <https://github.com/openthread/openthread>.
+
+.ti 3
+[TOCK]  Levy, A., Campbell, B., Pannuto, P., Dutta, P., Levis, P., "The Case for Writing a Kernel in Rust", APSys, 2017, <https://doi.org/10.1145/3124680.3124717>.
+
+.ti 3
+[6LO-CHART] Lemon, T., "IPv6 over Low power WPAN WG Charter", IETF, 2005, <https://datatracker.ietf.org/doc/charter-ietf-6lowpan/>.  
+
+.ti 3
+[E2E]  Saltzer, J. H., Reed, D. P., Clark, D. D., "End-to-end Arguments in System Design", ACM Trans. Comput. Syst., November 1984.
+
+.ti 3
+[RFC7400] Bormann, C., "6LoWPAN-GHC: Generic Header Compression for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)", RFC 7400, DOI 10.17487/RFC7400, November 2014, <https://www.rfc-editor.org/info/rfc7400>.
 
 .in 3
 
